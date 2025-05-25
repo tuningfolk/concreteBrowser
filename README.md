@@ -8,6 +8,9 @@
 - open local file using file:///
 - open data:text/plain to display content in url
 - keep-alive to reuse the same socket for repeated requests to a server
+- HTML parsing(underway)
+    - skip tags(for now)
+    - parse special characters &lt;/&gt;
 
 
     
