@@ -1,5 +1,16 @@
 # concreteBrowser
-let's see where this goes
+
+## Functionalities
+- Parse URL
+- Send HTTP/1.1 requests
+- Send HTTPS
+- receive response and display raw source
+- open local file using file:///
+- open data:text/plain to display content in url
+- keep-alive to reuse the same socket for repeated requests to a server
+
+
+    
 
 ## History
 hypertext: text marked up with hyperlinks to other texts.
