@@ -7,11 +7,12 @@
 - receive response and display raw source
 - open local file using file:///
 - open data:text/plain to display content in url
+- can handle redirects
 - keep-alive to reuse the same socket for repeated requests to a server
+    - socket reuse doesn't seem to receive properly with redirects
 - HTML parsing(underway)
     - skip tags(for now)
     - parse special characters \&lt;/\&gt;
-
 
     
 

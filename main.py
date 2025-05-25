@@ -4,6 +4,8 @@ import ssl
 from os import listdir
 
 hosts = {} # maps hostnames to their unclosed sockets
+num_redirects = 0
+MAX_REDIRECTS = 5
 class URL:
     # http://example.org/index.html
     # file:///path/goes/here
@@ -57,6 +59,7 @@ class URL:
         '''
         the URL instance has the host and the path, we can download the web page at that url
         '''
+        global num_redirects
         if self.scheme == "file":
             try:
                 f = open(self.file)
@@ -105,10 +108,13 @@ class URL:
         # not checking if server's http version same as ours, a lot of misconfigured servers out there that respond in HTTP 1.1 even when u talk to them in HTTP 1.0
         statusline = response.readline() 
         
-        print(statusline)
-
-        version, status, explanation = statusline.split(" ", 2)
+        print("printing statusline -- ", statusline)
+        print("from host: {%s} " %self.host)
         
+        try:
+            version, status, explanation = statusline.split(" ", 2)
+        except:
+            print(response.read())
         # after the status line comes the headers
         response_headers = {}
         while True:
@@ -116,7 +122,23 @@ class URL:
             if line == "\r\n": break
             header, value = line.split(":", 1)
             response_headers[header.casefold()] = value.strip()
-         
+        
+        # Redirect!
+        if 300<=int(status)<=399:
+            if num_redirects > MAX_REDIRECTS:
+                    return b'<html>too many redirects</html>'
+            num_redirects += 1
+            location = response_headers['location']
+            print("redirect to location: ", location)
+            # Same host, same scheme, different path
+            if location[0] == "/":
+                self.path = location
+                return self.request()
+            else:
+                url = URL(location)
+                return url.request()
+        else:
+            num_redirects = 0
         # to see whether response was received in an unusual way
         assert "transfer-encoding" not in response_headers
         assert "content-encoding" not in response_headers
@@ -167,6 +189,7 @@ def load(url):
 
 def view_source(body):
     print(body)
+
 import time
 
 if __name__ == "__main__":
@@ -177,10 +200,8 @@ if __name__ == "__main__":
         url = URL("file:///home/alisahad/projects/repos/concreteBrowser/startup.txt")
     start_time = time.time()
     load(url)
-    print("First request: ", time.time()-start_time)
-    start_time = time.time()
-    load(url)
-    print("Second request: ", time.time()-start_time)
+    print("Request time: ", time.time()-start_time)
+#    load(url)
 
 
 
