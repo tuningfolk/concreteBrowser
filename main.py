@@ -104,17 +104,17 @@ class URL:
         #r instead of rb should work right?
         response = s.makefile("r", encoding="utf8", newline="\r\n") #makefile returns a file-like object containing everybyte we receive from the server. 
         
+
         # first line is the status line
         # not checking if server's http version same as ours, a lot of misconfigured servers out there that respond in HTTP 1.1 even when u talk to them in HTTP 1.0
-        statusline = response.readline() 
-        
-        print("printing statusline -- ", statusline)
-        print("from host: {%s} " %self.host)
+        statusline = response.readline()
         
         try:
             version, status, explanation = statusline.split(" ", 2)
         except:
-            print(response.read())
+            print("Error: Wrong status line: ",response.read())
+            del hosts[(self.host, self.port)]
+            return self.request()
         # after the status line comes the headers
         response_headers = {}
         while True:
@@ -142,9 +142,12 @@ class URL:
         # to see whether response was received in an unusual way
         assert "transfer-encoding" not in response_headers
         assert "content-encoding" not in response_headers
-        assert 'content-length' in response_headers
-        content_length_bytes = int(response_headers['content-length'])
-        content = response.read(content_length_bytes)
+        # assert 'content-length' in response_headers
+        if 'content_length' not in response_headers:
+            content = response.read()
+        else:
+            content_length_bytes = int(response_headers['content-length'])
+            content = response.read(content_length_bytes)
         # s.close()
         return content
         
@@ -201,7 +204,7 @@ if __name__ == "__main__":
     start_time = time.time()
     load(url)
     print("Request time: ", time.time()-start_time)
-#    load(url)
+    load(url)
 
 
 
