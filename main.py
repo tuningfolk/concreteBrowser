@@ -6,6 +6,7 @@ from os import listdir
 hosts = {} # maps hostnames to their unclosed sockets
 num_redirects = 0
 MAX_REDIRECTS = 5
+
 class URL:
     # http://example.org/index.html
     # file:///path/goes/here
@@ -115,6 +116,7 @@ class URL:
             print("Error: Wrong status line: ",response.read())
             del hosts[(self.host, self.port)]
             return self.request()
+        
         # after the status line comes the headers
         response_headers = {}
         while True:
@@ -139,6 +141,8 @@ class URL:
                 return url.request()
         else:
             num_redirects = 0
+        
+
         # to see whether response was received in an unusual way
         assert "transfer-encoding" not in response_headers
         assert "content-encoding" not in response_headers
@@ -156,6 +160,7 @@ def show(body):
     less_than = "&lt;"
     greater_than = "&gt;"
     amper_string = ""
+    
     for c in body:
         if in_tag:
             if c == ">": in_tag = False
@@ -174,6 +179,7 @@ def show(body):
             amper_string = ""
         else:
             print(c,end="")
+    
     if amper_string!="":
         print(amper_string, end="")
              
